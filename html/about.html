@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript">
+  window.jQuery = window.$ = require('../js/lib/jquery.min.js');
+  window.Hammer = require('../js/lib/hammer.min.js');
+  window.app = require('electron').remote;
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.0/css/materialize.min.css">
+  <link rel="stylesheet" href="../css/settings.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.0/js/materialize.min.js"></script>
+  <script src="../js/views/about.js"></script>
+  <title>About</title>
+</head>
+<body>
+
+  <img src="../assets/img/soundcloud-logo.png" width="250px" style="margin: 20px;margin-bottom: -10px"/>
+
+  <main class="main-container">
+    <header>
+      <h4 class="teal-text text-lighten-1"><script> document.write(_("Settings")); </script></h4>
+    </header>
+    <div id="settings-wrapper">
+        <p>SoundCloud Client. Build with Electron.</p>
+        <p>This is <b>NOT</b> an official product. This project does not attempt to reverse engineer the SoundCloud API or attempt to
+            reimplement any part of the SoundCloud Client. Any communication between the user and SoundCloud servers is handled by
+            official SoundCloud Web itself; this is just a native wrapper for SoundCloud Web, like a browser.</p>
+        <p>App version: <span id="appversion"></span></p>
+        <p><b><span id="appupdates"></span></b></p>
+        <p>Website: <a href="https://github.com/gustavodini/soundcloud-client" target="_blank">https://github.com/gustavodini/soundcloud-client</a></p>
+    </div>
+  </main>
+</body>
+</html>
