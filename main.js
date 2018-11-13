@@ -16,9 +16,11 @@
     var request = require('request');
     var pjson = require('./package.json');
     var notifier = require('node-notifier');
-
-	//var globalShortcut = require('global-shortcut');
     var globalShortcut = require('electron').globalShortcut;
+
+    var playPause     = "Pause";
+    var faixaAtual    = "Nenhuma"
+    var imgFaixaAtual = ""
 
     const isAlreadyRunning = app.makeSingleInstance(() => {
         if (whatsApp.window) {
@@ -45,14 +47,14 @@
 
     log.info("Log init, file " + app.getPath('userData') + "/log.log");
 
-    var supportedLocales = ['en_US', 'it_IT'];
+    var supportedLocales = ['en_US', 'pt_BR'];
 
     global.gt = new nodeGettext();
     for (var i in supportedLocales) {
         var loc = supportedLocales[i];
         var dir = process.resourcesPath+"/app/locale/"+loc+"/messages.po";
         if (!fileSystem.existsSync(dir)) {
-          dir = "./app/locale/"+loc+"/messages.po";
+          dir = "locale/"+loc+"/messages.po";
         }
         log.info("Loading locale " + loc);
         gt.addTranslations(loc, 'messages', gettextParser.po.parse(fileSystem.readFileSync(dir)));
@@ -322,7 +324,7 @@
         },
 
         updateTrayIcon() {
-            if (global.whatsApp.oldIconStatus == global.whatsApp.iconStatus) {
+            /*if (global.whatsApp.oldIconStatus == global.whatsApp.iconStatus) {
                 return;
             }
             if (whatsApp.tray != undefined && process.platform != 'darwin') {
@@ -337,37 +339,54 @@
                     whatsApp.tray.setImage(__dirname + '/assets/icon/iconWithMsg.png');
                 } else {
                     log.info("Setting tray icon to normal");
-                    whatsApp.tray.setImage(__dirname + '/assets/icon/icon.png');
+                    whatsApp.tray.setImage(__dirname + '/assets/icon/trayIcon.png' );
                 }
                 log.info("Mask value: " + global.whatsApp.iconStatus);
             }
-            global.whatsApp.oldIconStatus = global.whatsApp.iconStatus;
+            global.whatsApp.oldIconStatus = global.whatsApp.iconStatus;*/
         },
 
         createTray() {
             log.info("Creating tray icon");
-            var trayImg = __dirname + '/assets/img/trayTemplate.png';
+            var trayImg = __dirname + '/assets/icon/trayIcon.png' ;
             // Darwin requires black/white/transparent icon, other platforms does not
             if (process.platform != 'darwin') {
-                trayImg = __dirname + '/assets/icon/icon.png';
+                trayImg =  __dirname + '/assets/icon/trayIcon.png' ;
             }
-            whatsApp.tray = new AppTray(trayImg);
+
+            if(whatsApp.tray == null){
+                whatsApp.tray = new AppTray(trayImg);
+            }
 
             // Setting up a trayicon context menu
             whatsApp.trayContextMenu = AppMenu.buildFromTemplate([
+
                 {label: _('Show'),
-                visible: false, // Hide this option on start
-                click: function() {
-                    whatsApp.window.show();
-                    whatsApp.window.setAlwaysOnTop(true);
-                    whatsApp.window.focus();
-                    whatsApp.window.setAlwaysOnTop(false);
+                    visible: false, // Hide this option on start
+                    click: function() {
+                        whatsApp.window.show();
+                        whatsApp.window.setAlwaysOnTop(true);
+                        whatsApp.window.focus();
+                        whatsApp.window.setAlwaysOnTop(false);
                 }},
 
                 {label: _('Hide'),
                 visible: true, // Show this option on start
                 click: function() {
                     whatsApp.window.hide();
+                }},
+
+                {label: _("Play/Pause"),
+                visible: true, // Hide this option on start
+                click: function() {
+                    whatsApp.playPause();
+                }},
+
+                {label: _("Faixa atual: " + (playPause == "Pause" ? faixaAtual : "Nenhuma")),
+                visible: true, // Hide this option on start
+                enabled: false,
+                click: function() {
+                    whatsApp.playPause();
                 }},
 
                 // Quit WhatsApp
@@ -397,7 +416,7 @@
                 whatsApp.window.setAlwaysOnTop(false);
             });
 
-            whatsApp.tray.setToolTip('WhatsApp Desktop');
+            whatsApp.tray.setToolTip('SoundCloud Client');
         },
 
         clearCache() {
@@ -406,6 +425,40 @@
                 fileSystem.unlinkSync(app.getPath('userData') + '/Application Cache/Index');
             } catch(e) {
                 log.warn("Error clearing cache: " + e);
+            }
+        },
+
+        playPause(){
+            log.info("Play or pause");
+            whatsApp.window.webContents.send('play', 'play');
+
+            var faixa    = "<b>Faixa atual:</b> " + faixaAtual;
+            if(playPause == "Play"){
+                playPause = "Pause";
+                notifier.notify({
+                    title: 'SoundCloud Client',
+                    message: "Faixa pausada",
+                    icon: join(__dirname, '/assets/icon/icon.png')
+                });
+            }else{
+                playPause = "Play";
+                if(imgFaixaAtual != ""){
+                      notifier.notify({
+                          title: 'SoundCloud Client',
+                          message: faixa,
+                          icon: imgFaixaAtual
+                      });
+                }else{
+                      notifier.notify({
+                          title: 'SoundCloud Client',
+                          message: faixa,
+                          icon: join(__dirname, '/assets/icon/icon.png')
+                      });
+                }
+            }
+            log.info(playPause);
+            if(whatsApp.tray != null){
+                  whatsApp.createTray();
             }
         },
 
@@ -422,10 +475,10 @@
                 "title": "SoundCloud Client",
                 "show": false,
                 "autoHideMenuBar": config.get("autoHideMenuBar") == true,
-                "icon": __dirname + "/assets/icon/icon.png",
+                "icon": join(__dirname, '/assets/icon/icon.png'),
                 "webPreferences": {
                   "nodeIntegration": false,
-                  "preload": join(__dirname, 'js', 'injected.js')
+                  "preload": join(__dirname, '/js/injected.js')
                 }
             });
 
@@ -810,16 +863,62 @@
     app.on('ready', () => {
         whatsApp.init();
 
-	try{
-	    globalShortcut.register('MediaPlayPause', () => {
-		console.log("Funciona...")
-	        whatsApp.window.webContents.executeJavaScript(
-		   "try{ document.getElementsByClassName('playControls__play')[0].onclick();}catch(e){alert(e.message);}"
-                );
-    	    });
-	}catch(e){
-	    console.log("Não funciona...")
-	}
+	      globalShortcut.register('CommandOrControl+P', function(){
+	        whatsApp.playPause();
+        });
 
     });
+
+    ipcMain.on('update-try', (event, arg) => {
+
+      log.info(playPause);
+      playPause = arg;
+
+      if(whatsApp.tray != null){
+            whatsApp.createTray();
+      }
+
+      log.info("Atualiza faixa");
+    });
+
+    ipcMain.on('faixa', (event, arg) => {
+      faixaAtual = arg;
+      log.info("Faixa atual: " + arg);
+    });
+
+    ipcMain.on('img-faixa', (event, arg) => {
+
+      if(playPause != "Play"){
+          downloadFile(arg, join( __dirname , '/assets/img/temp.jpg'));
+      }
+      log.info("Imagem da faixa atual: " + arg);
+    });
+
+
+    function downloadFile(file_url , targetPath){
+        // Save variable to know progress
+        var received_bytes = 0;
+        var total_bytes = 0;
+
+        var req = request({
+            method: 'GET',
+            uri: file_url
+        });
+
+        var out = fileSystem.createWriteStream(targetPath);
+        req.pipe(out);
+
+        req.on('response', function ( data ) {
+            total_bytes = parseInt(data.headers['content-length' ]);
+        });
+
+        req.on('data', function(chunk) {
+            received_bytes += chunk.length;
+        });
+
+        req.on('end', function() {
+           imgFaixaAtual = join( __dirname , '/assets/img/temp.jpg');
+        });
+
+    }
 })(this);

@@ -110,39 +110,6 @@
                     role: 'close'
                 }
             ]
-        },
-        {
-            label: "&" + _('Audio'),
-            submenu: [
-	    {
-                    label: _('Play / Pause'),
-                    accelerator: 'CmdOrCtrl+d',
-                    click: function(item, focusedWindow) {
-                        focusedWindow && focusedWindow.webContents.executeJavaScript(
-                            //"try{ $('.playControl').click();}catch(e){alert(e.message);}"
-			   "try{ document.getElementsByClassName('playControls__play')[0].onclick();}catch(e){alert(e.message);}"
-                        )
-                    }
-                },
-                {
-                    label: _('Increase Audio Rate by 20%'),
-                    accelerator: 'CmdOrCtrl+=',
-                    click: function(item, focusedWindow) {
-                        focusedWindow && focusedWindow.webContents.executeJavaScript(
-                            "window.audioRate = (window.audioRate || 1) + 0.2"
-                        )
-                    }
-                },
-                {
-                    label: _('Decrease Audio Rate by 20%'),
-                    accelerator: 'CmdOrCtrl+-',
-                    click: function(item, focusedWindow) {
-                        focusedWindow && focusedWindow.webContents.executeJavaScript(
-                            "window.audioRate = (window.audioRate || 1) - 0.2"
-                        )
-                    }
-                }
-            ]
         }
     ];
 
@@ -194,7 +161,7 @@
         );
     } else if (process.platform == 'linux' || process.platform == 'win64' || process.platform == 'win32') {
         template.unshift({
-            label: '&File',
+            label: _('File'),
             submenu: [
                 {
                     label: _('About'),

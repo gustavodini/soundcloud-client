@@ -1,17 +1,29 @@
 {
-  "name": "soundcloud-client",
+  "name": "soundcloud-client-dev",
   "version": "0.0.1",
   "license": "GPL-3.0",
-  "repository": { "type": "git", "url": "https://github.com/gustavodini/soundcloud-client.git" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gustavodini/soundcloud-client.git"
+  },
   "main": "main.js",
   "author": "gustavodini",
   "description": "Unofficial SoundCloud Client for OSX, Linux and Windows. Build with Electron.",
+  "scripts": {
+    "start": "electron ."
+  },
   "dependencies": {
     "auto-launch": "^5.0.1",
     "electron-log": "^2.2.7",
     "gettext-parser": "^1.2.2",
     "node-gettext": "^2.0.0",
     "node-notifier": "^5.1.2",
-    "request": "^2.83.0"
+    "request": "^2.88.0",
+    "screen": "^0.2.10"
+  },
+  "devDependencies": {
+    "electron": "^3.0.6",
+    "electron-native-notification": "^1.2.1",
+    "electron-notify": "^0.1.0"
   }
 }

@@ -2,6 +2,56 @@
 
     const {ipcRenderer} = require('electron');
     var updatePhoneInfoInterval = null;
+    var playControl = true;
+
+    // Listen for main message
+    ipcRenderer.on('play', (event, arg) => {
+
+        console.log(arg);
+        playControl = false;
+        document.getElementsByClassName('playControl')[0].click();
+
+        refreshData();
+    });
+
+    function addEvents(){
+        document.getElementsByClassName('playControl')[0].onclick = function(){
+            if(playControl){
+                var playPause = "Pause";
+                if(document.getElementsByClassName('playing')){
+                    playPause = "Play";
+                }
+                refreshData();
+                ipcRenderer.send('update-try', playPause);
+            }else{
+                playControl = true;
+            }
+        };
+
+        var playsButtons = document.getElementsByClassName('playButton');
+        for (var i=0; i < playsButtons.length; i++) {
+            playsButtons[i].onclick = function(){
+                  var playPause = "Pause";
+                  if(document.getElementsByClassName('playing')){
+                      playPause = "Play";
+                  }
+                  refreshData();
+                  ipcRenderer.send('update-try', playPause);
+            }
+        };
+    }
+
+    function refreshData(){
+      var faixa = document.getElementsByClassName('playbackSoundBadge__lightLink')[0].title
+                  + " - "
+                  + document.getElementsByClassName('playbackSoundBadge__titleLink')[0].title;
+
+      var img = document.querySelector('[aria-label="'+document.getElementsByClassName('playbackSoundBadge__titleLink')[0].title+'"]')
+                    .style.getPropertyValue('background-image');
+
+      ipcRenderer.send('faixa', faixa);
+      ipcRenderer.send('img-faixa', img.replace('url("', '').replace('")', ''));
+    }
 
     function updatePhoneInfo() {
         if (window.Store == undefined || window.Store.Conn == undefined) {
@@ -67,7 +117,8 @@
             Array.from(document.querySelectorAll('.meta-audio *:first-child')).map(function(span) {
                 span.innerHTML = window.audioRate.toFixed(1) + "x&nbsp;";
             });
-        }
+        };
+        addEvents();
     }, 200);
 
     var NativeNotification = Notification;

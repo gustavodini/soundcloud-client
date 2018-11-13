@@ -95,6 +95,10 @@ msgstr "Fechar"
 msgid "Audio"
 msgstr "Áudio"
 
+#: app/menu.js:109 app/menu.js:122
+msgid "File"
+msgstr "Arquivo"
+
 #: app/menu.js:112 app/menu.js:125
 msgid "Increase Audio Rate by 20%"
 msgstr "Aumentar Áudio em 20%"
