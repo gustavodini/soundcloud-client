@@ -382,7 +382,7 @@
                     whatsApp.playPause();
                 }},
 
-                {label: _("Faixa atual: " + (playPause == "Pause" ? faixaAtual : "Nenhuma")),
+                {label: _("Faixa atual: " + (playPause == "Pause" ? faixaAtual : faixaAtual)),
                 visible: true, // Hide this option on start
                 enabled: false,
                 click: function() {
@@ -863,7 +863,11 @@
     app.on('ready', () => {
         whatsApp.init();
 
-	      globalShortcut.register('CommandOrControl+P', function(){
+        globalShortcut.register('MediaPlayPause', function(){
+	        whatsApp.playPause();
+        });
+
+        globalShortcut.register('CmdOrCtrl+Alt+P', function(){
 	        whatsApp.playPause();
         });
 
